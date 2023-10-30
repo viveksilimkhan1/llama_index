@@ -7,6 +7,7 @@ from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 from ..base import REST
 
+
 class Models(str, Enum):
     # Completion models
     TITAN_EXPRESS = "amazon.titan-text-express-v1"
@@ -14,14 +15,27 @@ class Models(str, Enum):
     AI21_JURASSIC_ULTRA = "ai21.j2-ultra-v1"
     AI21_JURASSIC_MID = "ai21.j2-mid-v1"
 
+
 class ModelParams(List, Enum):
     # Params with default values
     TITAN = ["maxTokenCount", "stopSequences", "temperature", "topP"]
-    AI21_JURASSIC = ["maxTokens", "temperature", "topP", "countPenalty", "presencePenalty", "frequencyPenalty"]
+    AI21_JURASSIC = [
+        "maxTokens",
+        "temperature",
+        "topP",
+        "countPenalty",
+        "presencePenalty",
+        "frequencyPenalty",
+    ]
+
 
 class Bedrock(REST):
     def __init__(
-        self, model_id: str, region: str, config: Dict[Any, Any], max_tries: int = 5,
+        self,
+        model_id: str,
+        region: str,
+        config: Dict[Any, Any],
+        max_tries: int = 5,
     ):
         self._region = region
         self._model_id = model_id
@@ -42,13 +56,13 @@ class Bedrock(REST):
             name=model_id,
             config=self._config,
             max_tries=max_tries,
-            strict = True,
-            endpoint = "",
-            interval = 3,
-            max_request_time = 30
+            strict=True,
+            endpoint="",
+            interval=3,
+            max_request_time=30,
         )
 
-    def get_session_kwargs(self) -> Dict[str,str]:
+    def get_session_kwargs(self) -> Dict[str, str]:
 
         # Fetch and check the credentials
         profile = os.getenv("AWS_PROFILE") if not None else "default"
@@ -120,10 +134,17 @@ class Bedrock(REST):
                 contentType=contentType,
             )
             if self._model_id in [Models.TITAN_EXPRESS, Models.TITAN_LITE]:
-                responses = json.loads(r["body"].read().decode())["results"][0]["outputText"]
-            elif self._model_id in [Models.AI21_JURASSIC_ULTRA, Models.AI21_JURASSIC_MID]:
-                responses = json.loads(r["body"].read().decode())['completions'][0]['data']['text']
-            
+                responses = json.loads(r["body"].read().decode())["results"][0][
+                    "outputText"
+                ]
+            elif self._model_id in [
+                Models.AI21_JURASSIC_ULTRA,
+                Models.AI21_JURASSIC_MID,
+            ]:
+                responses = json.loads(r["body"].read().decode())["completions"][0][
+                    "data"
+                ]["text"]
+
             return responses
 
         for prompt in prompts:
@@ -134,11 +155,7 @@ class Bedrock(REST):
                     )
                 )
             if self._model_id in [Models.AI21_JURASSIC_ULTRA, Models.AI21_JURASSIC_MID]:
-                responses = _request(
-                    json.dumps(
-                        {"prompt":prompt, **self._config}
-                    )
-                ) 
+                responses = _request(json.dumps({"prompt": prompt, **self._config}))
 
             api_responses.append(responses)
 
@@ -158,8 +175,13 @@ class Bedrock(REST):
         except NoCredentialsError:
             raise NoCredentialsError
 
-    def credentials(self) -> Dict[str,str]:
+    def credentials(self) -> Dict[str, str]:
         return self.get_session_kwargs()
 
     def get_model_names(self) -> Tuple[str, ...]:
-        return ("amazon.titan-text-express-v1", "amazon.titan-text-lite-v1", "ai21.j2-ultra-v1", "ai21.j2-mid-v1")
+        return (
+            "amazon.titan-text-express-v1",
+            "amazon.titan-text-lite-v1",
+            "ai21.j2-ultra-v1",
+            "ai21.j2-mid-v1",
+        )

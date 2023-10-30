@@ -10,9 +10,9 @@ _DEFAULT_TEMPERATURE: float = 0.0
 _DEFAULT_MAX_TOKEN_COUNT: int = 512
 _DEFAULT_TOP_P: int = 1
 _DEFAULT_STOP_SEQUENCES: List[str] = []
-_DEFAULT_COUNT_PENALTY: Dict[str, Any] = {"scale":0}
-_DEFAULT_PRESENCE_PENALTY: Dict[str, Any] = {"scale":0}
-_DEFAULT_FREQUENCY_PENALTY: Dict[str, Any] = {"scale":0}
+_DEFAULT_COUNT_PENALTY: Dict[str, Any] = {"scale": 0}
+_DEFAULT_PRESENCE_PENALTY: Dict[str, Any] = {"scale": 0}
+_DEFAULT_FREQUENCY_PENALTY: Dict[str, Any] = {"scale": 0}
 
 
 @registry.llm_models("spacy.Bedrock.v1")
@@ -26,7 +26,7 @@ def bedrock(
         stopSequences=_DEFAULT_STOP_SEQUENCES,
         topP=_DEFAULT_TOP_P,
         # Params for Jurassic models
-        maxTokens=_DEFAULT_MAX_TOKEN_COUNT, 
+        maxTokens=_DEFAULT_MAX_TOKEN_COUNT,
         countPenalty=_DEFAULT_COUNT_PENALTY,
         presencePenalty=_DEFAULT_PRESENCE_PENALTY,
         frequencyPenalty=_DEFAULT_FREQUENCY_PENALTY,
@@ -39,6 +39,4 @@ def bedrock(
     region (str): Specify the AWS region for the service
     config (Dict[Any, Any]): LLM config passed on to the model's initialization.
     """
-    return Bedrock(
-        model_id=model_id, region=region, config=config, max_tries=max_tries
-    )
+    return Bedrock(model_id=model_id, region=region, config=config, max_tries=max_tries)
